@@ -1,13 +1,17 @@
+import java.io.*;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class StudentManagementSystem {
 
+    private static final String FILE_NAME = "students.txt";
     private static ArrayList<Student> students = new ArrayList<>();
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
+        loadStudentsFromFile();
+
         while (true) {
             showMenu();
             int choice = getValidIntegerInput();
@@ -23,7 +27,8 @@ public class StudentManagementSystem {
                     deleteStudentById();
                     break;
                 case 4:
-                    System.out.println("Exiting program...");
+                    saveStudentsToFile();
+                    System.out.println("Data saved. Exiting program...");
                     return;
                 default:
                     System.out.println("Invalid option. Try again.");
@@ -40,28 +45,25 @@ public class StudentManagementSystem {
     }
 
     private static void addStudent() {
-        try {
-            System.out.print("Enter ID: ");
-            int id = getValidIntegerInput();
+        System.out.print("Enter ID: ");
+        int id = getValidIntegerInput();
 
-            // Prevent duplicate student IDs
-            if (isStudentExists(id)) {
-                System.out.println("Student with this ID already exists.");
-                return;
-            }
-
-            System.out.print("Enter Name: ");
-            String name = scanner.next();
-
-            System.out.print("Enter Age: ");
-            int age = getValidIntegerInput();
-
-            students.add(new Student(id, name, age));
-            System.out.println("Student added successfully.");
-
-        } catch (Exception e) {
-            System.out.println("Failed to add student. Invalid input.");
+        // Prevent duplicate student IDs
+        if (isStudentExists(id)) {
+            System.out.println("Student with this ID already exists.");
+            return;
         }
+
+        System.out.print("Enter Name: ");
+        String name = scanner.next();
+
+        System.out.print("Enter Age: ");
+        int age = getValidIntegerInput();
+
+        students.add(new Student(id, name, age));
+        saveStudentsToFile();
+
+        System.out.println("Student added successfully.");
     }
 
     private static void searchStudentById() {
@@ -97,6 +99,7 @@ public class StudentManagementSystem {
         for (Student student : students) {
             if (student.getId() == id) {
                 students.remove(student);
+                saveStudentsToFile();
                 System.out.println("Student deleted successfully.");
                 return;
             }
@@ -105,19 +108,19 @@ public class StudentManagementSystem {
         System.out.println("Student not found.");
     }
 
-    // Validates integer input and prevents program crash
+    // Handles invalid numeric input safely
     private static int getValidIntegerInput() {
         while (true) {
             try {
                 return scanner.nextInt();
             } catch (InputMismatchException e) {
                 System.out.print("Enter a valid number: ");
-                scanner.next(); // clear invalid input
+                scanner.next();
             }
         }
     }
 
-    // Checks whether a student with given ID already exists
+    // Checks if a student with given ID already exists
     private static boolean isStudentExists(int id) {
         for (Student student : students) {
             if (student.getId() == id) {
@@ -125,5 +128,43 @@ public class StudentManagementSystem {
             }
         }
         return false;
+    }
+
+    // Saves all student data to file
+    private static void saveStudentsToFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
+            for (Student student : students) {
+                writer.write(
+                        student.getId() + "," +
+                        student.getName() + "," +
+                        student.getAge()
+                );
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving student data.");
+        }
+    }
+
+    // Loads student data from file at program start
+    private static void loadStudentsFromFile() {
+        File file = new File(FILE_NAME);
+        if (!file.exists()) {
+            return;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                int id = Integer.parseInt(data[0]);
+                String name = data[1];
+                int age = Integer.parseInt(data[2]);
+
+                students.add(new Student(id, name, age));
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading student data.");
+        }
     }
             }
