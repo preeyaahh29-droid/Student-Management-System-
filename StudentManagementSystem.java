@@ -37,10 +37,11 @@ public class StudentManagementSystem {
     }
 
     private static void showMenu() {
-        System.out.println("\n1. Add Student");
-        System.out.println("2. Search Student");
-        System.out.println("3. Delete Student");
-        System.out.println("4. Exit");
+        System.out.println("1. Add Student");
+        System.out.println("2. Search Student by ID");
+        System.out.println("3. Delete Student by ID");
+        System.out.println("4. Search Student by Name");
+        System.out.println("5. Exit");
         System.out.print("Enter choice: ");
     }
 
