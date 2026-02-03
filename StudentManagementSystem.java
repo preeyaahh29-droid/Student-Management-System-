@@ -27,6 +27,11 @@ public class StudentManagementSystem {
                     deleteStudentById();
                     break;
                 case 4:
+                    System.out.print("Enter student name: ");
+                    String name = scanner.next();
+                    studentService.searchStudentByName(name);
+                    break;
+                case 5:
                     saveStudentsToFile();
                     System.out.println("Data saved. Exiting program...");
                     return;
