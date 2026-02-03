@@ -36,3 +36,21 @@ public class StudentService {
         throw new IllegalArgumentException("Student not found");
     }
 }
+public void searchStudentByName(String name) {
+    boolean found = false;
+
+    for (Student student : students) {
+        if (student.getName().equalsIgnoreCase(name)) {
+            System.out.println(
+                "ID: " + student.getId() +
+                ", Name: " + student.getName() +
+                ", Age: " + student.getAge()
+            );
+            found = true;
+        }
+    }
+
+    if (!found) {
+        System.out.println("Student not found with name: " + name);
+    }
+}
