@@ -46,8 +46,8 @@ public class StudentManagementSystem {
         System.out.println("2. Search Student by ID");
         System.out.println("3. Delete Student by ID");
         System.out.println("4. Search Student by Name");
-        System.out.println("5. Exit");
-        System.out.print("Enter choice: ");
+        System.out.println("5. Sort Students by Name");
+        System.out.println("6. Exit");
     }
 
     private static void addStudent() {
