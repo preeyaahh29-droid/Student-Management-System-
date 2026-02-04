@@ -32,11 +32,12 @@ public class StudentManagementSystem {
                     searchStudentByName(name);
                     break;
                 case 5:
+                    sortStudentsByName();
+                    break;
+                case 6:
                     saveStudentsToFile();
                     System.out.println("Data saved. Exiting program...");
                     return;
-                default:
-                    System.out.println("Invalid option. Try again.");
             }
         }
     }
