@@ -50,7 +50,21 @@ public class StudentManagementSystem {
         System.out.println("5. Sort Students by Name");
         System.out.println("6. Exit");
     }
-
+    private static void sortStudentsByName() {
+        if (students.isEmpty()) {
+            System.out.println("No students to sort.");
+            return;
+    }
+        students.sort((s1, s2) ->
+        s1.getName().compareToIgnoreCase(s2.getName()));
+        System.out.println("Students sorted by name:");
+        for (Student s : students) {
+            System.out.println(
+            "ID: " + s.getId() +
+            ", Name: " + s.getName() +
+            ", Age: " + s.getAge());
+        }
+    }
     private static void addStudent() {
         System.out.print("Enter ID: ");
         int id = getValidIntegerInput();
