@@ -55,8 +55,7 @@ public class StudentManagementSystem {
             System.out.println("No students to sort.");
             return;
     }
-        students.sort((s1, s2) ->
-        s1.getName().compareToIgnoreCase(s2.getName()));
+        students.sort((s1, s2) ->s1.getName().compareToIgnoreCase(s2.getName()));
         System.out.println("Students sorted by name:");
         for (Student s : students) {
             System.out.println(
