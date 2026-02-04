@@ -29,7 +29,7 @@ public class StudentManagementSystem {
                 case 4:
                     System.out.print("Enter student name: ");
                     String name = scanner.next();
-                    studentService.searchStudentByName(name);
+                    searchStudentByName(name);
                     break;
                 case 5:
                     saveStudentsToFile();
