@@ -1,4 +1,5 @@
 public class Student {
+
     private int id;
     private String name;
     private int age;
@@ -27,7 +28,18 @@ public class Student {
         return marks;
     }
 
-    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public void setMarks(int marks) {
+        this.marks = marks;
+    }
+
     public String toString() {
         return "ID: " + id +
                ", Name: " + name +
