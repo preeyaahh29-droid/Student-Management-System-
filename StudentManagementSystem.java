@@ -1,242 +1,289 @@
-import java.io.*;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class StudentManagementSystem {
 
-    private static final String FILE_NAME = "students.txt";
-    private static ArrayList<Student> students = new ArrayList<>();
+    private static ArrayList<Student> students = new ArrayList<Student>();
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        loadStudentsFromFile(); // Load saved students at start
 
         while (true) {
             showMenu();
-            int choice = getValidIntegerInput();
+            int choice = readInteger();
 
             switch (choice) {
                 case 1:
                     addStudent();
                     break;
+
                 case 2:
-                    searchStudentById();
+                    updateStudent();
                     break;
+
                 case 3:
-                    deleteStudentById();
+                    deleteStudent();
                     break;
+
                 case 4:
-                    searchStudentByName();
+                    searchStudent();
                     break;
+
                 case 5:
-                    sortStudentsByName();
+                    sortStudents();
                     break;
+
                 case 6:
-                    saveStudentsToFile();
-                    System.out.println("Data saved. Exiting program...");
+                    displayStudents();
+                    break;
+
+                case 7:
+                    System.out.println("Exiting program...");
                     scanner.close();
                     return;
+
                 default:
-                    System.out.println("Invalid choice. Please try again.");
+                    System.out.println("Invalid choice. Try again.");
             }
         }
     }
 
+    // ================= MENU =================
+
     private static void showMenu() {
-        System.out.println("\n===== STUDENT MANAGEMENT SYSTEM =====");
+        System.out.println("\n===== Student Management System =====");
         System.out.println("1. Add Student");
-        System.out.println("2. Search Student by ID");
-        System.out.println("3. Delete Student by ID");
-        System.out.println("4. Search Student by Name");
-        System.out.println("5. Sort Students by Name");
-        System.out.println("6. Exit");
+        System.out.println("2. Update Student");
+        System.out.println("3. Delete Student");
+        System.out.println("4. Search Student");
+        System.out.println("5. Sort Students");
+        System.out.println("6. Display Students");
+        System.out.println("7. Exit");
         System.out.print("Enter your choice: ");
     }
 
-    private static void sortStudentsByName() {
-        if (students.isEmpty()) {
-            System.out.println("No students to sort.");
+    // ================= ADD =================
+
+    private static void addStudent() {
+
+        System.out.print("Enter ID: ");
+        int id = readInteger();
+
+        if (findStudentById(id) != null) {
+            System.out.println("Student with this ID already exists.");
             return;
         }
 
-        // Sort alphabetically (case-insensitive)
-        students.sort((s1, s2) ->
-                s1.getName().compareToIgnoreCase(s2.getName()));
+        System.out.print("Enter Name: ");
+        String name = readLine();
 
-        System.out.println("Students sorted by name:");
-        for (Student s : students) {
-            System.out.println("ID: " + s.getId() +
-                               ", Name: " + s.getName() +
-                               ", Age: " + s.getAge());
+        System.out.print("Enter Age: ");
+        int age = readInteger();
+
+        if (age <= 0) {
+            System.out.println("Invalid age.");
+            return;
         }
+
+        System.out.print("Enter Marks: ");
+        int marks = readInteger();
+
+        if (marks < 0 || marks > 100) {
+            System.out.println("Marks must be between 0 and 100.");
+            return;
+        }
+
+        students.add(new Student(id, name, age, marks));
+        System.out.println("Student added successfully.");
     }
 
-    private static void addStudent() {
-        try {
-            System.out.print("Enter ID: ");
-            int id = getValidIntegerInput();
+    // ================= UPDATE =================
 
-            if (id <= 0)
-                throw new InvalidStudentDataException("ID must be positive.");
+    private static void updateStudent() {
 
-            if (isStudentExists(id)) {
-                System.out.println("Student with this ID already exists.");
-                return;
-            }
-
-            scanner.nextLine(); // Clear buffer
-            System.out.print("Enter Name: ");
-            String name = scanner.nextLine();
-
-            if (name.trim().isEmpty())
-                throw new InvalidStudentDataException("Name cannot be empty.");
-
-            System.out.print("Enter Age: ");
-            int age = getValidIntegerInput();
-
-            if (age <= 0)
-                throw new InvalidStudentDataException("Age must be positive.");
-
-            students.add(new Student(id, name, age));
-            saveStudentsToFile();
-
-            System.out.println("Student added successfully.");
-
-        } catch (InvalidStudentDataException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }
-
-    private static void searchStudentById() {
         if (students.isEmpty()) {
             System.out.println("No students available.");
             return;
         }
 
-        System.out.print("Enter ID to search: ");
-        int id = getValidIntegerInput();
+        System.out.print("Enter ID to update: ");
+        int id = readInteger();
 
-        for (Student student : students) {
-            if (student.getId() == id) {
-                System.out.println("Student Found:");
-                System.out.println("ID   : " + student.getId());
-                System.out.println("Name : " + student.getName());
-                System.out.println("Age  : " + student.getAge());
-                return;
-            }
+        Student student = findStudentById(id);
+
+        if (student == null) {
+            System.out.println("Student not found.");
+            return;
         }
 
-        System.out.println("Student not found.");
+        System.out.print("Enter New Name: ");
+        String name = readLine();
+        student.setName(name);
+
+        System.out.print("Enter New Age: ");
+        int age = readInteger();
+        student.setAge(age);
+
+        System.out.print("Enter New Marks: ");
+        int marks = readInteger();
+        student.setMarks(marks);
+
+        System.out.println("Student updated successfully.");
     }
 
-    private static void deleteStudentById() {
+    // ================= DELETE =================
+
+    private static void deleteStudent() {
+
         if (students.isEmpty()) {
-            System.out.println("No students to delete.");
+            System.out.println("No students available.");
             return;
         }
 
         System.out.print("Enter ID to delete: ");
-        int id = getValidIntegerInput();
+        int id = readInteger();
 
-        // Index-based loop avoids ConcurrentModificationException
-        for (int i = 0; i < students.size(); i++) {
-            if (students.get(i).getId() == id) {
-                students.remove(i);
-                saveStudentsToFile();
-                System.out.println("Student deleted successfully.");
-                return;
-            }
+        Student student = findStudentById(id);
+
+        if (student == null) {
+            System.out.println("Student not found.");
+            return;
         }
 
-        System.out.println("Student not found.");
+        students.remove(student);
+        System.out.println("Student deleted successfully.");
     }
 
-    private static void searchStudentByName() {
+    // ================= SEARCH =================
+
+    private static void searchStudent() {
+
         if (students.isEmpty()) {
             System.out.println("No students available.");
             return;
         }
 
-        scanner.nextLine(); // Clear buffer
-        System.out.print("Enter Name to search: ");
-        String name = scanner.nextLine();
+        System.out.println("Search By:");
+        System.out.println("1. ID");
+        System.out.println("2. Name");
+        System.out.print("Choose option: ");
 
-        boolean found = false;
+        int option = readInteger();
 
-        for (Student student : students) {
-            if (student.getName().equalsIgnoreCase(name)) {
-                if (!found) {
-                    System.out.println("Matching Students:");
-                }
-                System.out.println("ID: " + student.getId() +
-                                   ", Name: " + student.getName() +
-                                   ", Age: " + student.getAge());
-                found = true;
-            }
+        if (option == 1) {
+            System.out.print("Enter ID: ");
+            int id = readInteger();
+
+            Student student = findStudentById(id);
+
+            if (student == null)
+                System.out.println("Student not found.");
+            else
+                System.out.println(student);
         }
 
-        if (!found) {
-            System.out.println("No student found with that name.");
+        else if (option == 2) {
+            System.out.print("Enter Name: ");
+            String name = readLine();
+
+            boolean found = false;
+
+            for (Student s : students) {
+                if (s.getName().equalsIgnoreCase(name)) {
+                    System.out.println(s);
+                    found = true;
+                }
+            }
+
+            if (!found)
+                System.out.println("Student not found.");
+        }
+
+        else {
+            System.out.println("Invalid option.");
         }
     }
 
-    // Handles invalid numeric input safely
-    private static int getValidIntegerInput() {
+    // ================= SORT =================
+
+    private static void sortStudents() {
+
+        if (students.isEmpty()) {
+            System.out.println("No students available.");
+            return;
+        }
+
+        System.out.println("Sort By:");
+        System.out.println("1. Name");
+        System.out.println("2. Marks");
+        System.out.print("Choose option: ");
+
+        int option = readInteger();
+
+        if (option == 1) {
+            students.sort(StudentComparators.byName);
+            System.out.println("Sorted by Name.");
+        }
+
+        else if (option == 2) {
+            students.sort(StudentComparators.byMarks);
+            System.out.println("Sorted by Marks.");
+        }
+
+        else {
+            System.out.println("Invalid option.");
+        }
+    }
+
+    // ================= DISPLAY =================
+
+    private static void displayStudents() {
+
+        if (students.isEmpty()) {
+            System.out.println("No students to display.");
+            return;
+        }
+
+        System.out.println("\n===== Student List =====");
+
+        for (Student s : students) {
+            System.out.println(s);
+        }
+    }
+
+    // ================= INPUT METHODS =================
+
+    private static int readInteger() {
         while (true) {
             try {
-                return scanner.nextInt();
+                int value = scanner.nextInt();
+                scanner.nextLine(); // clear buffer
+                return value;
             } catch (InputMismatchException e) {
-                System.out.print("Invalid input. Enter a number: ");
-                scanner.next(); // Discard invalid input
+                System.out.print("Enter a valid number: ");
+                scanner.next();
             }
         }
     }
 
-    private static boolean isStudentExists(int id) {
-        for (Student student : students) {
-            if (student.getId() == id) {
-                return true;
-            }
+    private static String readLine() {
+        String input = scanner.nextLine();
+        if (input.trim().isEmpty()) {
+            System.out.print("Input cannot be empty. Enter again: ");
+            return readLine();
         }
-        return false;
+        return input;
     }
 
-    private static void saveStudentsToFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
-            for (Student student : students) {
-                writer.write(student.getId() + "," +
-                             student.getName() + "," +
-                             student.getAge());
-                writer.newLine();
+    // ================= UTILITY =================
+
+    private static Student findStudentById(int id) {
+        for (Student s : students) {
+            if (s.getId() == id) {
+                return s;
             }
-        } catch (IOException e) {
-            System.out.println("Error saving student data.");
         }
+        return null;
     }
-
-    private static void loadStudentsFromFile() {
-        File file = new File(FILE_NAME);
-
-        if (!file.exists()) return;
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                String[] data = line.split(",");
-
-                if (data.length != 3) continue;
-
-                int id = Integer.parseInt(data[0]);
-                String name = data[1];
-                int age = Integer.parseInt(data[2]);
-
-                students.add(new Student(id, name, age));
             }
-
-        } catch (IOException e) {
-            System.out.println("Error loading student data.");
-        }
-    }
-        }
