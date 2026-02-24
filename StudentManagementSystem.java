@@ -4,19 +4,19 @@ import java.util.Scanner;
 
 public class StudentManagementSystem {
 
-    // List to store students
+    // Stores all student records
     private static ArrayList<Student> studentList = new ArrayList<Student>();
 
-    // Scanner for user input
-    private static Scanner input = new Scanner(System.in);
+    // Scanner for reading user input
+    private static Scanner inputScanner = new Scanner(System.in);
 
     public static void main(String[] args) {
 
         while (true) {
-            displayMenu();
-            int choice = readIntegerInput();
+            printMainMenu();
+            int menuChoice = readInteger();
 
-            switch (choice) {
+            switch (menuChoice) {
                 case 1:
                     addStudent();
                     break;
@@ -43,18 +43,18 @@ public class StudentManagementSystem {
 
                 case 7:
                     System.out.println("Exiting program...");
-                    input.close();
+                    inputScanner.close();
                     return;
 
                 default:
-                    System.out.println("Invalid choice. Please try again.");
+                    System.out.println("Invalid choice. Please select from the menu.");
             }
         }
     }
 
     // ================= MENU =================
 
-    private static void displayMenu() {
+    private static void printMainMenu() {
         System.out.println("\n===== Student Management System =====");
         System.out.println("1. Add Student");
         System.out.println("2. Update Student");
@@ -71,34 +71,38 @@ public class StudentManagementSystem {
     private static void addStudent() {
 
         System.out.print("Enter Student ID: ");
-        int id = readIntegerInput();
+        int studentId = readInteger();
 
-        // Prevent duplicate IDs
-        if (findStudentById(id) != null) {
+        if (studentId <= 0) {
+            System.out.println("ID must be a positive number.");
+            return;
+        }
+
+        if (findStudentById(studentId) != null) {
             System.out.println("Student with this ID already exists.");
             return;
         }
 
         System.out.print("Enter Student Name: ");
-        String name = readLineInput();
+        String studentName = readNonEmptyString();
 
         System.out.print("Enter Student Age: ");
-        int age = readIntegerInput();
+        int studentAge = readInteger();
 
-        if (age <= 0) {
+        if (studentAge <= 0) {
             System.out.println("Age must be greater than zero.");
             return;
         }
 
-        System.out.print("Enter Student Marks (0–100): ");
-        int marks = readIntegerInput();
+        System.out.print("Enter Student Marks (0 - 100): ");
+        int studentMarks = readInteger();
 
-        if (marks < 0 || marks > 100) {
+        if (studentMarks < 0 || studentMarks > 100) {
             System.out.println("Marks must be between 0 and 100.");
             return;
         }
 
-        studentList.add(new Student(id, name, age, marks));
+        studentList.add(new Student(studentId, studentName, studentAge, studentMarks));
         System.out.println("Student added successfully.");
     }
 
@@ -112,47 +116,39 @@ public class StudentManagementSystem {
         }
 
         System.out.print("Enter Student ID to update: ");
-        int id = readIntegerInput();
+        int studentId = readInteger();
 
-        Student student = findStudentById(id);
+        Student student = findStudentById(studentId);
 
         if (student == null) {
             System.out.println("Student not found.");
             return;
         }
 
-        try {
-            System.out.println("Enter new details:");
+        System.out.print("Enter New Name: ");
+        String newName = readNonEmptyString();
 
-            System.out.print("New Name: ");
-            String newName = readLineInput();
+        System.out.print("Enter New Age: ");
+        int newAge = readInteger();
 
-            System.out.print("New Age: ");
-            int newAge = readIntegerInput();
-
-            if (newAge <= 0) {
-                System.out.println("Invalid age. Update cancelled.");
-                return;
-            }
-
-            System.out.print("New Marks (0–100): ");
-            int newMarks = readIntegerInput();
-
-            if (newMarks < 0 || newMarks > 100) {
-                System.out.println("Invalid marks. Update cancelled.");
-                return;
-            }
-
-            // Apply updates
-            student.setName(newName);
-            student.setAge(newAge);
-            student.setMarks(newMarks);
-
-            System.out.println("Student updated successfully.");
-
-        } catch (Exception e) {
-            System.out.println("Error occurred while updating student.");
+        if (newAge <= 0) {
+            System.out.println("Invalid age. Update cancelled.");
+            return;
         }
+
+        System.out.print("Enter New Marks (0 - 100): ");
+        int newMarks = readInteger();
+
+        if (newMarks < 0 || newMarks > 100) {
+            System.out.println("Invalid marks. Update cancelled.");
+            return;
+        }
+
+        student.setName(newName);
+        student.setAge(newAge);
+        student.setMarks(newMarks);
+
+        System.out.println("Student updated successfully.");
     }
 
     // ================= DELETE STUDENT =================
@@ -165,9 +161,9 @@ public class StudentManagementSystem {
         }
 
         System.out.print("Enter Student ID to delete: ");
-        int id = readIntegerInput();
+        int studentId = readInteger();
 
-        Student student = findStudentById(id);
+        Student student = findStudentById(studentId);
 
         if (student == null) {
             System.out.println("Student not found.");
@@ -192,13 +188,13 @@ public class StudentManagementSystem {
         System.out.println("2. Name");
         System.out.print("Choose option: ");
 
-        int option = readIntegerInput();
+        int searchChoice = readInteger();
 
-        if (option == 1) {
+        if (searchChoice == 1) {
             System.out.print("Enter Student ID: ");
-            int id = readIntegerInput();
+            int studentId = readInteger();
 
-            Student student = findStudentById(id);
+            Student student = findStudentById(studentId);
 
             if (student == null)
                 System.out.println("Student not found.");
@@ -206,20 +202,20 @@ public class StudentManagementSystem {
                 System.out.println(student);
         }
 
-        else if (option == 2) {
+        else if (searchChoice == 2) {
             System.out.print("Enter Student Name: ");
-            String name = readLineInput();
+            String name = readNonEmptyString();
 
-            boolean found = false;
+            boolean isFound = false;
 
             for (Student s : studentList) {
                 if (s.getName().equalsIgnoreCase(name)) {
                     System.out.println(s);
-                    found = true;
+                    isFound = true;
                 }
             }
 
-            if (!found)
+            if (!isFound)
                 System.out.println("Student not found.");
         }
 
@@ -242,14 +238,14 @@ public class StudentManagementSystem {
         System.out.println("2. Marks");
         System.out.print("Choose option: ");
 
-        int option = readIntegerInput();
+        int sortChoice = readInteger();
 
-        if (option == 1) {
+        if (sortChoice == 1) {
             studentList.sort(StudentComparators.byName);
             System.out.println("Students sorted by Name.");
         }
 
-        else if (option == 2) {
+        else if (sortChoice == 2) {
             studentList.sort(StudentComparators.byMarks);
             System.out.println("Students sorted by Marks.");
         }
@@ -275,42 +271,40 @@ public class StudentManagementSystem {
         }
     }
 
-    // ================= INPUT HANDLING =================
+    // ================= SAFE INPUT METHODS =================
 
-    // Reads integer safely
-    private static int readIntegerInput() {
+    // Reads integer safely (prevents crash)
+    private static int readInteger() {
         while (true) {
             try {
-                int value = input.nextInt();
-                input.nextLine(); // clear buffer
+                int value = inputScanner.nextInt();
+                inputScanner.nextLine(); // clear buffer
                 return value;
             } catch (InputMismatchException e) {
                 System.out.print("Invalid input. Enter a valid number: ");
-                input.next();
+                inputScanner.next();
             }
         }
     }
 
-    // Reads non-empty string
-    private static String readLineInput() {
-        String value = input.nextLine().trim();
+    // Reads non-empty string safely
+    private static String readNonEmptyString() {
+        String value = inputScanner.nextLine().trim();
 
         if (value.isEmpty()) {
             System.out.print("Input cannot be empty. Enter again: ");
-            return readLineInput();
+            return readNonEmptyString();
         }
 
         return value;
     }
 
-    // ================= UTILITY METHOD =================
+    // ================= UTILITY =================
 
-    // Finds student by ID
     private static Student findStudentById(int id) {
         for (Student s : studentList) {
-            if (s.getId() == id) {
+            if (s.getId() == id)
                 return s;
-            }
         }
         return null;
     }
