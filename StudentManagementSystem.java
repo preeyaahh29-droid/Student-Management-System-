@@ -1,19 +1,19 @@
-import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class StudentManagementSystem {
 
-    private static ArrayList<Student> studentList = new ArrayList<>();
-    private static Scanner inputScanner = new Scanner(System.in);
+    private static Scanner scanner = new Scanner(System.in);
+    private static StudentService service = new StudentService();
 
     public static void main(String[] args) {
 
         while (true) {
-            displayMainMenu();
-            int menuChoice = readInteger();
+            showMenu();
+            int choice = getValidInteger();
 
-            switch (menuChoice) {
+            switch (choice) {
+
                 case 1:
                     addStudent();
                     break;
@@ -27,264 +27,128 @@ public class StudentManagementSystem {
                     break;
 
                 case 4:
-                    searchStudentMenu();
+                    searchById();
                     break;
 
                 case 5:
-                    sortStudentsMenu();
+                    searchByName();
                     break;
 
                 case 6:
-                    printStudentList();
+                    service.displayStudents();
                     break;
 
                 case 7:
+                    sortMenu();
+                    break;
+
+                case 8:
                     System.out.println("Exiting program...");
                     return;
 
                 default:
-                    System.out.println("Invalid choice. Please select from menu.");
+                    System.out.println("Invalid choice.");
             }
         }
     }
 
-    private static void displayMainMenu() {
-
+    private static void showMenu() {
         System.out.println("\n===== Student Management System =====");
         System.out.println("1. Add Student");
         System.out.println("2. Update Student");
         System.out.println("3. Delete Student");
-        System.out.println("4. Search Student");
-        System.out.println("5. Sort Students");
-        System.out.println("6. Display All Students");
-        System.out.println("7. Exit");
-        System.out.print("Enter your choice: ");
+        System.out.println("4. Search by ID");
+        System.out.println("5. Search by Name");
+        System.out.println("6. Display Students");
+        System.out.println("7. Sort Students");
+        System.out.println("8. Exit");
+        System.out.print("Enter choice: ");
     }
 
     private static void addStudent() {
 
-        System.out.print("Enter Student ID: ");
-        int studentId = readInteger();
-
-        if (!isValidId(studentId)) {
-            System.out.println("Invalid ID. ID must be positive.");
-            return;
-        }
-
-        if (findStudentById(studentId) != null) {
-            System.out.println("Student with this ID already exists.");
-            return;
-        }
+        System.out.print("Enter ID: ");
+        int id = getValidInteger();
 
         System.out.print("Enter Name: ");
-        String studentName = inputScanner.next();
+        String name = scanner.next();
 
         System.out.print("Enter Age: ");
-        int studentAge = readInteger();
-
-        if (!isValidAge(studentAge)) {
-            System.out.println("Invalid age. Age must be between 1 and 120.");
-            return;
-        }
+        int age = getValidInteger();
 
         System.out.print("Enter Marks: ");
-        int studentMarks = readInteger();
+        int marks = getValidInteger();
 
-        if (!isValidMarks(studentMarks)) {
-            System.out.println("Invalid marks. Enter between 0 and 100.");
-            return;
-        }
-
-        studentList.add(new Student(studentId, studentName, studentAge, studentMarks));
-
-        System.out.println("Student added successfully.");
+        service.addStudent(new Student(id, name, age, marks));
     }
 
     private static void updateStudent() {
 
-        System.out.print("Enter Student ID to update: ");
-        int studentId = readInteger();
+        System.out.print("Enter ID to update: ");
+        int id = getValidInteger();
 
-        Student student = findStudentById(studentId);
+        System.out.print("Enter new name: ");
+        String name = scanner.next();
 
-        if (student == null) {
-            System.out.println("Student not found.");
-            return;
-        }
+        System.out.print("Enter new age: ");
+        int age = getValidInteger();
 
-        System.out.print("Enter New Name: ");
-        String newName = inputScanner.next();
+        System.out.print("Enter new marks: ");
+        int marks = getValidInteger();
 
-        System.out.print("Enter New Age: ");
-        int newAge = readInteger();
-
-        if (!isValidAge(newAge)) {
-            System.out.println("Invalid age.");
-            return;
-        }
-
-        System.out.print("Enter New Marks: ");
-        int newMarks = readInteger();
-
-        if (!isValidMarks(newMarks)) {
-            System.out.println("Invalid marks.");
-            return;
-        }
-
-        student.setName(newName);
-        student.setAge(newAge);
-        student.setMarks(newMarks);
-
-        System.out.println("Student updated successfully.");
+        service.updateStudent(id, name, age, marks);
     }
 
     private static void deleteStudent() {
 
-        System.out.print("Enter Student ID to delete: ");
-        int studentId = readInteger();
+        System.out.print("Enter ID to delete: ");
+        int id = getValidInteger();
 
-        Student student = findStudentById(studentId);
-
-        if (student == null) {
-            System.out.println("Student not found.");
-            return;
-        }
-
-        studentList.remove(student);
-
-        System.out.println("Student deleted successfully.");
+        service.deleteStudent(id);
     }
 
-    private static void searchStudentMenu() {
+    private static void searchById() {
 
-        System.out.println("\nSearch Student By:");
-        System.out.println("1. ID");
-        System.out.println("2. Name");
-        System.out.print("Enter choice: ");
+        System.out.print("Enter ID: ");
+        int id = getValidInteger();
 
-        int option = readInteger();
+        service.searchStudentById(id);
+    }
+
+    private static void searchByName() {
+
+        System.out.print("Enter Name: ");
+        String name = scanner.next();
+
+        service.searchStudentByName(name);
+    }
+
+    private static void sortMenu() {
+
+        System.out.println("1. Sort by Name");
+        System.out.println("2. Sort by Marks");
+        System.out.print("Choose option: ");
+
+        int option = getValidInteger();
 
         if (option == 1) {
-            searchStudentById();
+            service.sortByName();
         } else if (option == 2) {
-            searchStudentByName();
+            service.sortByMarks();
         } else {
             System.out.println("Invalid option.");
         }
     }
 
-    private static void searchStudentById() {
-
-        System.out.print("Enter Student ID: ");
-        int studentId = readInteger();
-
-        Student student = findStudentById(studentId);
-
-        if (student == null)
-            System.out.println("Student not found.");
-        else
-            System.out.println(student);
-    }
-
-    private static void searchStudentByName() {
-
-        System.out.print("Enter Student Name: ");
-        String name = inputScanner.next();
-
-        boolean found = false;
-
-        for (Student student : studentList) {
-
-            if (student.getName().equalsIgnoreCase(name)) {
-
-                System.out.println(student);
-                found = true;
-            }
-        }
-
-        if (!found)
-            System.out.println("Student not found.");
-    }
-
-    private static void sortStudentsMenu() {
-
-        if (studentList.isEmpty()) {
-            System.out.println("No students available to sort.");
-            return;
-        }
-
-        System.out.println("\nSort Students By:");
-        System.out.println("1. Name");
-        System.out.println("2. Marks");
-        System.out.print("Choose option: ");
-
-        int option = readInteger();
-
-        switch (option) {
-
-            case 1:
-                studentList.sort(StudentComparators.byName);
-                System.out.println("Students sorted by Name.");
-                break;
-
-            case 2:
-                studentList.sort(StudentComparators.byMarks);
-                System.out.println("Students sorted by Marks (Highest first).");
-                break;
-
-            default:
-                System.out.println("Invalid sorting option.");
-        }
-    }
-
-    private static void printStudentList() {
-
-        if (studentList.isEmpty()) {
-            System.out.println("No students available.");
-            return;
-        }
-
-        System.out.println("\n===== Student List =====");
-
-        for (Student student : studentList) {
-            System.out.println(student);
-        }
-    }
-
-    private static Student findStudentById(int id) {
-
-        for (Student student : studentList) {
-
-            if (student.getId() == id)
-                return student;
-        }
-
-        return null;
-    }
-
-    private static int readInteger() {
+    private static int getValidInteger() {
 
         while (true) {
-
             try {
-                return inputScanner.nextInt();
+                return scanner.nextInt();
             } catch (InputMismatchException e) {
-
-                System.out.print("Invalid input. Enter a number: ");
-                inputScanner.next();
+                System.out.print("Enter a valid number: ");
+                scanner.next();
             }
         }
-    }
-
-    private static boolean isValidId(int id) {
-        return id > 0;
-    }
-
-    private static boolean isValidAge(int age) {
-        return age > 0 && age <= 120;
-    }
-
-    private static boolean isValidMarks(int marks) {
-        return marks >= 0 && marks <= 100;
     }
 }
