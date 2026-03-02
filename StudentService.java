@@ -1,56 +1,98 @@
 import java.util.ArrayList;
 
 public class StudentService {
+
     private ArrayList<Student> students = new ArrayList<>();
 
     public void addStudent(Student student) {
-        for (Student s : students) {
-            if (s.getId() == student.getId()) {
-                throw new IllegalArgumentException("Student with this ID already exists");
-            }
+        if (findStudentById(student.getId()) != null) {
+            System.out.println("Student with this ID already exists.");
+            return;
         }
+
         students.add(student);
-        System.out.println("Student added successfully");
+        System.out.println("Student added successfully.");
+    }
+
+    public void displayStudents() {
+        if (students.isEmpty()) {
+            System.out.println("No students available.");
+            return;
+        }
+
+        for (Student s : students) {
+            System.out.println(s);
+        }
     }
 
     public void deleteStudent(int id) {
+        Student student = findStudentById(id);
+
+        if (student == null) {
+            System.out.println("Student not found.");
+            return;
+        }
+
+        students.remove(student);
+        System.out.println("Student deleted successfully.");
+    }
+
+    public void updateStudent(int id, String name, int age, int marks) {
+        Student student = findStudentById(id);
+
+        if (student == null) {
+            System.out.println("Student not found.");
+            return;
+        }
+
+        student.setName(name);
+        student.setAge(age);
+        student.setMarks(marks);
+
+        System.out.println("Student updated successfully.");
+    }
+
+    public void searchStudentById(int id) {
+        Student student = findStudentById(id);
+
+        if (student == null) {
+            System.out.println("Student not found.");
+        } else {
+            System.out.println(student);
+        }
+    }
+
+    public void searchStudentByName(String name) {
+        boolean found = false;
+
         for (Student s : students) {
-            if (s.getId() == id) {
-                students.remove(s);
-                System.out.println("Student deleted successfully");
-                return;
+            if (s.getName().equalsIgnoreCase(name)) {
+                System.out.println(s);
+                found = true;
             }
         }
-        throw new IllegalArgumentException("Student not found");
+
+        if (!found) {
+            System.out.println("Student not found.");
+        }
     }
 
-    public void searchStudent(int id) {
+    public void sortByName() {
+        students.sort(StudentComparators.byName);
+        System.out.println("Students sorted by name.");
+    }
+
+    public void sortByMarks() {
+        students.sort(StudentComparators.byMarks);
+        System.out.println("Students sorted by marks.");
+    }
+
+    private Student findStudentById(int id) {
         for (Student s : students) {
             if (s.getId() == id) {
-                System.out.println("ID: " + s.getId());
-                System.out.println("Name: " + s.getName());
-                System.out.println("Age: " + s.getAge());
-                return;
+                return s;
             }
         }
-        throw new IllegalArgumentException("Student not found");
-    }
-}
-public void searchStudentByName(String name) {
-    boolean found = false;
-
-    for (Student student : students) {
-        if (student.getName().equalsIgnoreCase(name)) {
-            System.out.println(
-                "ID: " + student.getId() +
-                ", Name: " + student.getName() +
-                ", Age: " + student.getAge()
-            );
-            found = true;
-        }
-    }
-
-    if (!found) {
-        System.out.println("Student not found with name: " + name);
+        return null;
     }
 }
