@@ -1,50 +1,84 @@
-public class Student {
+import java.util.ArrayList;
 
-    private int id;
-    private String name;
-    private int age;
-    private int marks;
+/**
+ * Handles all student operations (CRUD)
+ */
+public class StudentService {
 
-    public Student(int id, String name, int age, int marks) {
-        this.id = id;
-        this.name = name;
-        this.age = age;
-        this.marks = marks;
+    private ArrayList<Student> students = new ArrayList<>();
+
+    public void addStudent(Student student) {
+
+        if (findStudentById(student.getId()) != null) {
+            System.out.println("Student with this ID already exists.");
+            return;
+        }
+
+        students.add(student);
+        System.out.println("Student added successfully.");
     }
 
-    public int getId() {
-        return id;
+    public void updateStudent(int id, String name, int age, int marks) {
+
+        Student student = findStudentById(id);
+
+        if (student == null) {
+            System.out.println("Student not found.");
+            return;
+        }
+
+        student.setName(name);
+        student.setAge(age);
+        student.setMarks(marks);
+
+        System.out.println("Student updated successfully.");
     }
 
-    public String getName() {
-        return name;
+    public void deleteStudent(int id) {
+
+        Student student = findStudentById(id);
+
+        if (student == null) {
+            System.out.println("Student not found.");
+            return;
+        }
+
+        students.remove(student);
+        System.out.println("Student deleted successfully.");
     }
 
-    public int getAge() {
-        return age;
+    public void searchStudentById(int id) {
+
+        Student student = findStudentById(id);
+
+        if (student == null) {
+            System.out.println("Student not found.");
+        } else {
+            System.out.println(student);
+        }
     }
 
-    public int getMarks() {
-        return marks;
+    public void displayStudents() {
+
+        if (students.isEmpty()) {
+            System.out.println("No students available.");
+            return;
+        }
+
+        for (Student s : students) {
+            System.out.println(s);
+        }
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    private Student findStudentById(int id) {
 
-    public void setAge(int age) {
-        this.age = age;
-    }
+        for (Student s : students) {
 
-    public void setMarks(int marks) {
-        this.marks = marks;
-    }
+            if (s.getId() == id) {
+                return s;
+            }
+        }
 
-    @Override
-    public String toString() {
-        return "ID: " + id +
-                ", Name: " + name +
-                ", Age: " + age +
-                ", Marks: " + marks;
+        return null;
     }
 }
